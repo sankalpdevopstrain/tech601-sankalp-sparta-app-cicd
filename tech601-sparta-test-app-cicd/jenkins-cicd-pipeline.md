@@ -242,3 +242,7 @@ Outcome of Git Steps
 dev branch successfully pushed to GitHub
 ```
 Ready to trigger the CI pipeline using webhook
+
+## Job 2
+
+### Blocker
