@@ -1,4 +1,12 @@
 ## CI&CD GitHub Setup - Sparta App
+
+- [CI\&CD GitHub Setup - Sparta App](#cicd-github-setup---sparta-app)
+  - [Purpose](#purpose)
+- [1. Preparing the New Repository](#1-preparing-the-new-repository)
+- [2. SSH Key Setup](#2-ssh-key-setup)
+- [3. Git Setup and Initial Commit:](#3-git-setup-and-initial-commit)
+- [4. Verification:](#4-verification)
+
 ### Purpose
 
 This repository contains a copy of the Sparta Node.js application prepared for CI/CD pipeline integration using Jenkins. The app/ folder is placed at the root of the repository, and all code is uncompressed. This documentation outlines the complete step-by-step process for setting up the repo, configuring SSH access, and pushing the code to GitHub.
