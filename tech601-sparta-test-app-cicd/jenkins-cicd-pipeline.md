@@ -243,6 +243,89 @@ dev branch successfully pushed to GitHub
 ```
 Ready to trigger the CI pipeline using webhook
 
+---
 ## Job 2
+### Step 1: Create a New Jenkins Job
+1. Go to Jenkins dashboard
+2. Click New Item
+3. Enter name: sankalp-job2-ci-merge
+4. Select Freestyle Project
+5. Click OK
 
-### Blocker
+### Step 2: Configure Source Code (GitHub Repo)
+1. Scroll to Source Code Management (SCM)
+2. Select Git
+3. Enter repository URL:`git@github.com:sankalpdevopstrain/tech601-sankalp-sparta-app-cicd.git`
+4. Add credentials:
+   - Kind: SSH Username with private key
+   - Username: git
+   - Private key: Content of `tech601-job2-jenkins-key`
+5. Branch to build:`*/dev`
+
+### Step 3: Configure Job Trigger (Link Job 1 → Job 2)
+
+1. In Job 1 (sankalp-job1-ci-test):
+   1.  Go to Post-build Actions
+   2.  Select: Build other projects
+   3.  Enter: sankalp-job2-ci-merge
+
+This ensures:
+- Job 2 only runs if Job 1 is SUCCESS
+
+### Step 4: Add Build Step (Merge dev into main)
+1. Scroll to Build → Execute Shell
+- Add: Set Git author for merge commit
+  - git config user.name "Sankalp Hiregoudar"
+  - git config user.email "sankalpdevopstrain@gmail.com"
+
+2. Fetch latest branches
+```bash
+git fetch origin
+```
+3. Ensure main is up-to-date locally
+```bash
+git checkout main
+git reset --hard origin/main
+```
+
+4. Merge dev into main
+```bash
+git merge origin/dev
+```
+
+6. Push main back to GitHub
+```bash
+git push origin main
+```
+
+### Step 5: Save and Run Pipeline
+1. Make a change in dev branch
+2. Run:
+```bash
+git add .
+git commit -m "test job2 pipeline"
+git push origin dev
+```
+
+**Final Outcome**
+- Webhook triggers Job 1
+- Job 1 runs tests
+- If tests pass → Job 2 runs automatically
+- Code is merged from dev → main
+
+This creates a basic CI pipeline with automated merging.
+
+### Blocker: SSH Authentication Failure in Job 2
+**Issue**
+```bash
+git@github.com: Permission denied (publickey).
+fatal: Could not read from remote repository.
+```
+**Cause**
+- Jenkins Job 2 was using an SSH key that did not have write access to the GitHub repository
+- GitHub rejected the connection during:
+```bash
+git fetch origin
+git push origin main
+```
+
