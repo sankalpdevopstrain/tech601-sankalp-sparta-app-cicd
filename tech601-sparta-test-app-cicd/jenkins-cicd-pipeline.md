@@ -341,3 +341,5 @@ Added for testing Job 3 pipeline deployment.
 
 
 ### Blocker 2
+
+### Had to create a new VM on AWS
