@@ -1,8 +1,67 @@
 ## Jenkins CI/CD pipeline
-
-
-
-## Trying to get Job 3 working
+- [Jenkins CI/CD pipeline](#jenkins-cicd-pipeline)
+- [Job 1:](#job-1)
+  - [Step 1: Create a New Jenkins Job](#step-1-create-a-new-jenkins-job)
+  - [Step 2: Configure Source Code (GitHub Repo)](#step-2-configure-source-code-github-repo)
+  - [Step 3: Understand Default Working Directory](#step-3-understand-default-working-directory)
+  - [Step 4: Add Build Step (Execute Shell)](#step-4-add-build-step-execute-shell)
+  - [Step 7: Save the Job](#step-7-save-the-job)
+  - [Step 8: Run the Job](#step-8-run-the-job)
+  - [Step 9: Observe Build Queue \& Execution](#step-9-observe-build-queue--execution)
+  - [Step 10: Check Console Output](#step-10-check-console-output)
+- [Blockers](#blockers)
+  - [Blocker 1: Missing models Folder](#blocker-1-missing-models-folder)
+  - [Blocker 2: Missing app.js](#blocker-2-missing-appjs)
+  - [Blocker 3: SSH Authentication Failure](#blocker-3-ssh-authentication-failure)
+  - [Final Outcome](#final-outcome)
+- [Webhook Setup (Triggering the Pipeline)](#webhook-setup-triggering-the-pipeline)
+  - [Step 1: Configure Webhook in GitHub](#step-1-configure-webhook-in-github)
+  - [Step 2: Configure Jenkins Job 1](#step-2-configure-jenkins-job-1)
+  - [Outcome](#outcome)
+- [Job 2: CI Merge (dev → main)](#job-2-ci-merge-dev--main)
+  - [Purpose](#purpose)
+  - [Step 1: Create and Switch to dev Branch](#step-1-create-and-switch-to-dev-branch)
+  - [Step 2: Switch to dev Branch](#step-2-switch-to-dev-branch)
+  - [Step 3: Make a Change](#step-3-make-a-change)
+  - [Step 4: Check Status](#step-4-check-status)
+  - [Step 5: Stage and Commit](#step-5-stage-and-commit)
+  - [Step 6: Push dev Branch](#step-6-push-dev-branch)
+- [Job 2](#job-2)
+  - [Step 1: Create a New Jenkins Job](#step-1-create-a-new-jenkins-job-1)
+  - [Step 2: Configure Source Code (GitHub Repo)](#step-2-configure-source-code-github-repo-1)
+  - [Step 3: Configure Job Trigger (Link Job 1 → Job 2)](#step-3-configure-job-trigger-link-job-1--job-2)
+  - [Step 4: Add Build Step (Merge dev into main)](#step-4-add-build-step-merge-dev-into-main)
+  - [Step 5: Save and Run Pipeline](#step-5-save-and-run-pipeline)
+  - [Blocker: SSH Authentication Failure in Job 2](#blocker-ssh-authentication-failure-in-job-2)
+- [Job 3: CD Deployment to EC2 (Step-by-Step)](#job-3-cd-deployment-to-ec2-step-by-step)
+  - [Purpose](#purpose-1)
+  - [Step 1: Create AWS EC2 Instance](#step-1-create-aws-ec2-instance)
+  - [Step 2: Prepare EC2 Environment](#step-2-prepare-ec2-environment)
+  - [Step 3: Create Jenkins Credentials for EC2](#step-3-create-jenkins-credentials-for-ec2)
+  - [Step 4: Create Job 3 (CD Deploy Job)](#step-4-create-job-3-cd-deploy-job)
+  - [Step 5: Configure Source Code](#step-5-configure-source-code)
+  - [Step 6: Link Job 2 → Job 3](#step-6-link-job-2--job-3)
+  - [Step 7: Configure Build Environment](#step-7-configure-build-environment)
+  - [Step 8: Add Deployment Script (Build Step)](#step-8-add-deployment-script-build-step)
+  - [Step 9: Run Full Pipeline Test](#step-9-run-full-pipeline-test)
+  - [Step 10: Observe Pipeline Flow](#step-10-observe-pipeline-flow)
+  - [Step 11: Console Output](#step-11-console-output)
+  - [Step 12: Verify Deployment](#step-12-verify-deployment)
+- [Blockers](#blockers-1)
+  - [Blocker 1: Git Authentication Failure (SSH Key Issue)](#blocker-1-git-authentication-failure-ssh-key-issue)
+  - [Issue](#issue)
+  - [Cause](#cause)
+  - [Resolution](#resolution)
+  - [Blocker 2: Missing Project Files in Jenkins Build (Job 1 Failure)](#blocker-2-missing-project-files-in-jenkins-build-job-1-failure)
+  - [Issue](#issue-1)
+  - [Cause](#cause-1)
+  - [Resolution](#resolution-1)
+  - [Outcome](#outcome-1)
+  - [Blocker 3 (Major Reset Issue): Pipeline Restarted From Scratch](#blocker-3-major-reset-issue-pipeline-restarted-from-scratch)
+  - [Issue](#issue-2)
+  - [Cause](#cause-2)
+  - [Resolution](#resolution-2)
+  - [Outcome](#outcome-2)
 
 
 ## Job 1:
@@ -426,8 +485,180 @@ pm2 start app.js --name app
    3. git push origin dev
 
 ### Step 10: Observe Pipeline Flow
+![alt text](image-3.png)
 1. Job 1 runs tests:
-
+![alt text](image-4.png)
+![alt text](image-5.png)
 2. Job 2 merges dev → main:
-
+![alt text](image-6.png)
+![alt text](image-7.png)
 3. Job 3 deploys to EC2:
+![alt text](image-8.png)
+
+### Step 11: Console Output
+1. Go to Jenkins dashboard
+2. Click on `sankalp-job3-cd-deploy`
+3. In build history:
+   1. Click on the last `#` number
+   2. Click on `console output`:
+      ```bash
+      Console Output
+      Started by upstream project "sankalp-job2-ci-merge" build number 18
+      originally caused by:
+      Started by upstream project "sankalp-job1-ci-test" build number 32
+      originally caused by:
+      Started by GitHub push by sankalpdevopstrain
+      Running as SYSTEM
+      Building remotely on EC2 (sparta-aws) - jenkins-node-2204-java17v5 (i-090d0efbd6958601f) in workspace /var/jenkins/workspace/sankalp-job3-cd-deploy
+      [WS-CLEANUP] Deleting project workspace...
+      [WS-CLEANUP] Deferred wipeout is used...
+      [ssh-agent] Looking for ssh-agent implementation...
+      [ssh-agent]   Exec ssh-agent (binary ssh-agent on a remote machine)
+      $ ssh-agent
+      SSH_AUTH_SOCK=/tmp/ssh-XXXXXXNaB53p/agent.1245
+      SSH_AGENT_PID=1247
+      [ssh-agent] Started.
+      Running ssh-add (command line suppressed)
+      Identity added: /var/jenkins/workspace/sankalp-job3-cd-deploy@tmp/private_key_15985744455087639450.key (/var/jenkins/workspace/sankalp-job3-cd-deploy@tmp/private_key_15985744455087639450.key)
+      [ssh-agent] Using credentials ubuntu (EC2 access for Job 3)
+      The recommended git tool is: NONE
+      using credential sankalp-jenkins-2-github-key
+      Cloning the remote Git repository
+      Cloning repository git@github.com:sankalpdevopstrain/tech601-sankalp-sparta-app-cicd.git
+      > git init /var/jenkins/workspace/sankalp-job3-cd-deploy # timeout=10
+      Fetching upstream changes from git@github.com:sankalpdevopstrain/tech601-sankalp-sparta-app-cicd.git
+      > git --version # timeout=10
+      > git --version # 'git version 2.34.1'
+      using GIT_SSH to set credentials to read/write to repo
+      > git fetch --tags --force --progress -- git@github.com:sankalpdevopstrain/tech601-sankalp-sparta-app-cicd.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+      > git config remote.origin.url git@github.com:sankalpdevopstrain/tech601-sankalp-sparta-app-cicd.git # timeout=10
+      > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+      Avoid second fetch
+      > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+      Checking out Revision 4c01072cd6f08d706712af45788375803485bb23 (refs/remotes/origin/main)
+      > git config core.sparsecheckout # timeout=10
+      > git checkout -f 4c01072cd6f08d706712af45788375803485bb23 # timeout=10
+      Commit message: "Observe Pipeline Flow"
+      > git rev-list --no-walk 2e439bb18f0ed76885ce6a7842a2d498a8a0a0e8 # timeout=10
+      [sankalp-job3-cd-deploy] $ /bin/sh -xe /tmp/jenkins1004225021445641792.sh
+      + ssh -o StrictHostKeyChecking=no ubuntu@52.211.137.86 rm -rf /home/ubuntu/app
+      Warning: Permanently added '52.211.137.86' (ED25519) to the list of known hosts.
+      + scp -o StrictHostKeyChecking=no -r tech601-sparta-test-app-cicd/app ubuntu@52.211.137.86:/home/ubuntu/
+      + ssh -o StrictHostKeyChecking=no ubuntu@52.211.137.86 
+      cd /home/ubuntu/app
+      npm install
+      pm2 delete app || true
+      pm2 start app.js --name app
+
+
+      > sparta-test-app@1.0.1 postinstall
+      > node seeds/seed.js
+
+      Database connection closed
+
+      added 388 packages, and audited 389 packages in 5s
+
+      52 packages are looking for funding
+      run `npm fund` for details
+
+      21 vulnerabilities (5 low, 5 moderate, 9 high, 2 critical)
+
+      To address all issues, run:
+      npm audit fix
+
+      Run `npm audit` for details.
+      [PM2] Applying action deleteProcessId on app [app](ids: [ 0 ])
+      [PM2] [app](0) ✓
+      ┌────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+      │ id │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+      └────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+      [PM2] Starting /home/ubuntu/app/app.js in fork_mode (1 instance)
+      [PM2] Done.
+      ┌────┬────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+      │ id │ name   │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+      ├────┼────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+      │ 0  │ app    │ default     │ 1.0.1   │ fork    │ 15692    │ 0s     │ 0    │ online    │ 0%       │ 18.4mb   │ ubuntu   │ disabled │
+      └────┴────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+      $ ssh-agent -k
+      unset SSH_AUTH_SOCK;
+      unset SSH_AGENT_PID;
+      echo Agent pid 1247 killed;
+      [ssh-agent] Stopped.
+      Finished: SUCCESS
+      ```
+
+### Step 12: Verify Deployment
+1. Open browser: http://52.211.137.86:3000
+2. Confirm:
+![alt text](image-9.png)
+
+---
+## Blockers
+### Blocker 1: Git Authentication Failure (SSH Key Issue)
+### Issue
+When attempting to push code to GitHub, authentication failed with the following error:
+```bash
+Permission denied (publickey)
+```
+### Cause
+* The correct SSH key was not loaded into the SSH agent
+* GitHub could not verify the user identity
+### Resolution
+
+The SSH agent was restarted and the correct key was added:
+```bash
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/sankalp-jenkins-2-github-key
+ssh -T git@github.com
+Outcome
+Successful authentication with GitHub
+Able to push and pull code securely using SSH
+```
+
+### Blocker 2: Missing Project Files in Jenkins Build (Job 1 Failure)
+### Issue
+
+Jenkins build failed with:
+```bash
+Cannot find module '../models/post'
+Cannot find module '../app'
+```
+### Cause
+* Required application folders/files were missing in the repository
+* Jenkins could not locate dependencies needed for testing
+### Resolution
+Missing files were copied into the repository and committed:
+```bash
+cp -r app/models .
+cp app/app.js app/
+git add .
+git commit -m "Fix missing application files for Jenkins build"
+git push
+```
+### Outcome
+* Jenkins build executed successfully
+* Tests ran without missing module errors
+
+### Blocker 3 (Major Reset Issue): Pipeline Restarted From Scratch
+### Issue
+
+The entire CI/CD pipeline had to be reset due to multiple configuration and authentication issues across Jenkins jobs and AWS deployment.
+
+### Cause
+* Multiple misconfigured SSH keys across jobs
+* Inconsistent repository access between Job 1, Job 2, and Job 3
+* EC2 deployment path inconsistencies
+* Pipeline dependencies breaking between stages
+### Resolution
+* Deleted Job 3 and recreated clean deployment job
+* Removed previous EC2 instance and launched a fresh one
+* Recreated Jenkins credentials for:
+  * GitHub access (Job 1 & 2)
+  * EC2 SSH access (Job 3)
+* Re-tested full pipeline from scratch (CI → Merge → CD)
+### Outcome
+* Clean and stable CI/CD pipeline established
+* All jobs now run in correct sequence:
+  * Job 1 → Tests
+  * Job 2 → Merge
+  * Job 3 → Deploy
