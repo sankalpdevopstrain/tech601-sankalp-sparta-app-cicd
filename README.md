@@ -85,4 +85,4 @@ The final section represents the CD phase, which focuses on releasing the applic
    1. Deploy to AWS: Jenkins takes the tested and merged code (artifact) and deploys it to AWS. This process can be automated, meaning the application is updated without manual effort.
    2. Application Live: Once deployed, the new version of the application is running and accessible to users.SSH push test
 ## Jenkins
-Hi everyone
+[Jenkins CI/CD Pipeline](jenkins-cicd-pipeline.md)
