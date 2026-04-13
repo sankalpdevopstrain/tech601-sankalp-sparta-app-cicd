@@ -1,9 +1,9 @@
 ## Jenkins CI/CD pipeline
 
-Redeploying test3
+
 
 ## Trying to get Job 3 working
-final fix
+
 
 ## Job 1:
 
@@ -335,14 +335,99 @@ git push origin main
 ```
 
 ---
-## Job 3
+## Job 3: CD Deployment to EC2 (Step-by-Step)
+### Purpose
 
-Added for testing Job 3 pipeline deployment.
+The purpose of Job 3 is to automatically deploy the tested and merged application from GitHub to an AWS EC2 instance. This ensures that any approved code changes are deployed to a live server without manual work.
 
-### Blocker
+### Step 1: Create AWS EC2 Instance
+1. Go to AWS EC2 Dashboard
+2. Click Launch Instance
+3. Configure:
+   1. Name: `tech601-sankalp-jenkins-app`
+   2. AMI: `Ubuntu Server 22.04 LTS`
+   3. Instance type: `t3.micro`
+   4. Key pair: `tech601-sankalp-aws`
+4. Configure Security Group:
+   1. `SSH (22)` → My IP / Anywhere (for testing)
+   2. `HTTP (80)` → Anywhere
+   3. `Custom TCP (3000)` → Anywhere (Node app access)
+5. Click Launch Instance
 
+### Step 2: Prepare EC2 Environment
+1. Connect to EC2 using SSH:
+```bash
+ssh -i tech601-sankalp-aws.pem ubuntu@54.171.170.159
+```
+2. Install required dependencies:
+```bash
+sudo apt update
+sudo apt install nodejs npm -y
+npm install -g pm2
+```
+3. Create application directory:
+```bash
+mkdir -p ~/app
+```
+### Step 3: Create Jenkins Credentials for EC2
+1. Go to Jenkins → Manage Credentials
+2. Add new credential:
+   1. Kind: SSH Username with private key
+   2. ID: sankalp-aws-pem
+   3. Username: ubuntu
+   4. Private Key: paste EC2 .pem key
+3. Save credentials
 
-### Blocker 2
+### Step 4: Create Job 3 (CD Deploy Job)
+1. Go to Jenkins → New Item
+2. Name: `sankalp-job3-cd-deploy`
+3. Select Freestyle Project
+4. Click OK
 
-### Had to create a new VM on AWS
-## Blocker 1
+### Step 5: Configure Source Code
+1. Under Source Code Management
+2. Select Git
+3. Add repository:`git@github.com:sankalpdevopstrain/tech601-sankalp-sparta-app-cicd.git`
+4. Branch: `*/main`
+5. Credentials:
+   1. Use GitHub SSH key: `sankalp-jenkins-2-github-key`
+
+### Step 6: Link Job 2 → Job 3
+1. Open Job 2
+2. Go to Post-build Actions
+3. Select: `Build other projects`
+4. Add: `sankalp-job3-cd-deploy`
+
+### Step 7: Configure Build Environment
+1. Enable:
+   1. SSH Agent
+   2. Select credentials: `sankalp-aws-pem`
+
+### Step 8: Add Deployment Script (Build Step)
+
+1. Add Execute Shell:
+```bash
+ssh -o StrictHostKeyChecking=no ubuntu@52.211.137.86 "rm -rf /home/ubuntu/app"
+
+scp -o StrictHostKeyChecking=no -r tech601-sparta-test-app-cicd/app ubuntu@52.211.137.86:/home/ubuntu/
+
+ssh -o StrictHostKeyChecking=no ubuntu@52.211.137.86 "
+cd /home/ubuntu/app
+npm install
+pm2 delete app || true
+pm2 start app.js --name app
+"
+```
+### Step 9: Run Full Pipeline Test
+1. Make a change in dev branch
+2. Commit and push:
+   1. git add .
+   2. git commit -m "test Job 3 deployment"
+   3. git push origin dev
+
+### Step 10: Observe Pipeline Flow
+1. Job 1 runs tests:
+
+2. Job 2 merges dev → main:
+
+3. Job 3 deploys to EC2:
